@@ -2,11 +2,10 @@
 ;; BSD 2-Clause License, for more information see LICENSE
 
 (cond-expand
- (android
-  (include "android/graphics.scm"))
  (sdl
-  (include "sdl/graphics.scm")))
-
+  (%load playground: sdl/graphics))
+ (android
+  (%load playground: android/graphics)))
 
 ;;; How to deal with non-floating-point input to cairo functions
 
@@ -28,20 +27,19 @@
   #t)
 
 (define draw:on
-  #f
-#;
   (cond-expand
    (android
     #f)
    (sdl
-    SDL::flip)))
+    sdl::flip)))
 
 ;-------------------------------------------------------------------------------
 ; Color
 ;-------------------------------------------------------------------------------
 
-(define-type color
-  constructor: make-color%internal
+(define-record-type color
+  make-color%internal
+  color?
   r
   g
   b
@@ -156,26 +154,26 @@
     (if fill
         (if (fill-color fill)
             (let ((c (fill-color fill)))
-              (cairo-set-source-rgba cairo
+              (cairo:set-source-rgba cairo
                                      (color-r c)
                                      (color-g c)
                                      (color-b c)
                                      (color-a c))
-              ((if preserve? cairo-fill-preserve cairo-fill)
+              ((if preserve? cairo:fill-preserve cairo-fill)
                cairo))))
     (if stroke
         (if (stroke-color stroke)
             (let ((c (stroke-color stroke)))
-              (cairo-set-source-rgba cairo
+              (cairo:set-source-rgba cairo
                                      (color-r c)
                                      (color-g c)
                                      (color-b c)
                                      (color-a c))
               (if *stroke-thickness-changed?*
                   (begin
-                    (cairo-set-line-width cairo (stroke-thickness stroke))
+                    (cairo:set-line-width cairo (stroke-thickness stroke))
                     (set! *stroke-thickness-changed?* #f)))
-              (cairo-stroke cairo))))))
+              (cairo:stroke cairo))))))
 
 ;-------------------------------------------------------------------------------
 ; Pixels
@@ -197,8 +195,11 @@
                  ;(stroke *default-stroke*)
                  ;(fill *default-fill*)
                       )
-  (cairo-move-to cairo (flonum x1) (flonum y1))
-  (cairo-line-to cairo (flonum x2) (flonum y2))
+  (define cairo *cairo*)
+  (define stroke *default-stroke*)
+  (define fill *default-fill*)
+  (cairo:move-to cairo (flonum x1) (flonum y1))
+  (cairo:line-to cairo (flonum x2) (flonum y2))
   (%%execute-paint cairo stroke fill))
 
 ;;; Draw a rectangle given its two corners
@@ -209,7 +210,10 @@
                            ;(stroke *default-stroke*)
                            ;(fill *default-fill*)
                                 )
-  (cairo-rectangle cairo
+  (define cairo *cairo*)
+  (define stroke *default-stroke*)
+  (define fill *default-fill*)
+  (cairo:rectangle cairo
                    (flonum x1) (flonum y1)
                    (flonum x2) (flonum y2))
   (%%execute-paint cairo stroke fill))
@@ -252,12 +256,18 @@
                             ;(stroke *default-stroke*)
                             ;(fill *default-fill*)
                             )
-  (cairo-arc cairo
+  (define cairo *cairo*)
+  (define stroke *default-stroke*)
+  (define fill *default-fill*)
+  (cairo:arc cairo
              (flonum x)
              (flonum y)
              (flonum r)
              0.0
-             pi2)
+             ;TODO
+             ;pi2
+             6.28
+             )
   (%%execute-paint cairo stroke fill))
 
 ;;; Bezier curve

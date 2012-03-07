@@ -1,6 +1,11 @@
 ;; Copyright (c) 2012, Alvaro Castro-Castilla. All rights reserved.
 ;; BSD 2-Clause License, for more information see LICENSE
 
+(cond-expand
+ (sdl
+  (%load playground: sdl/core))
+ (android
+  (%load playground: android/core)))
 
 ;;; Hooks for C
 
@@ -26,7 +31,7 @@
 
 ;;; Initialization routine
 
-(define (anygame:initialize!)
+(define (pg:initialize!)
   (let-syntax ((initialize-module
                 (syntax-rules ()
                   ((_ ?global-binding ?init-form)
@@ -46,16 +51,16 @@
 
 ;;; Set setup function
 
-(define (anygame:set-setup! f)
+(define (pg:set-setup! f)
   (set! setup-hook
         (lambda ()
-          (set! *state* (f (anygame:initialize!)))
+          (set! *state* (f (pg:initialize!)))
           ;; TODO: check and return error
           0)))
 
 ;;; Set draw loop function
 
-(define (anygame:set-main-loop! f)
+(define (pg:set-main-loop! f)
   (set! main-loop-hook
         (lambda ()
           (f *state*)
@@ -64,7 +69,7 @@
 
 ;;; Start
 
-(define (anygame:start!)
+(define (pg:start!)
   (if *initialized*
       (main-loop-hook)
       (begin
@@ -74,15 +79,15 @@
 
 ;;; Window
 
-(define (anygame:set-size! state x y
+(define (pg:set-size! state x y
                            ;#!key
                            ;(adaptive #f)
                            ;(fullscreen #f)
                            )
   #f)
 
-(define (anygame:width state)
+(define (pg:width state)
   #f)
 
-(define (anygame:height state)
+(define (pg:height state)
   #f)
