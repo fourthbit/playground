@@ -114,12 +114,10 @@
                             )
   (stroke-color-set! *default-stroke* color))
 
-(define *stroke-thickness-changed?* #t)
 (define (draw:stroke-thickness! thickness
                            ;#!key
                            ;(cairo *cairo*)
                                 )
-  (set! *stroke-thickness-changed?* #t)
   (stroke-thickness-set! *default-stroke* thickness))
 
 ;;; Fill
@@ -169,10 +167,7 @@
                                      (color-g c)
                                      (color-b c)
                                      (color-a c))
-              (if *stroke-thickness-changed?*
-                  (begin
-                    (cairo:set-line-width cairo (stroke-thickness stroke))
-                    (set! *stroke-thickness-changed?* #f)))
+              (cairo:set-line-width cairo (stroke-thickness stroke))
               (cairo:stroke cairo))))))
 
 ;-------------------------------------------------------------------------------
