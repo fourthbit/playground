@@ -68,11 +68,3 @@
         (setup #f)
         (main-loop #f))
       (main-loop (pg:initialize! setup)))))
-
-
-
-(define (pg:width state)
-  #f)
-
-(define (pg:height state)
-  #f)

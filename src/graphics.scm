@@ -46,9 +46,8 @@
 ; Color
 ;-------------------------------------------------------------------------------
 
-(define-record-type color
-  make-color%internal
-  color?
+(define-type color
+  constructor: make-color%internal
   r
   g
   b
@@ -121,6 +120,10 @@
                        (cairo *cairo*))
   (stroke-color-set! *default-stroke* color))
 
+(define (draw:no-stroke! #!key
+                         (cairo *cairo*))
+  (set! *default-stroke* #f))
+
 (define (draw:stroke-thickness! thickness
                            #!key
                            (cairo *cairo*))
@@ -149,30 +152,33 @@
                      (cairo *cairo*))
   (fill-color-set! *default-fill* c))
 
+(define (draw:no-fill! #!key
+                       (cairo *cairo*))
+  (fill-color-set! *default-fill* #f))
+
 ;;; Execute paint: stroke, fill or both
 
 (define (%%execute-paint cairo stroke fill)
-  (let ((preserve? stroke))
-    (if fill
-        (if (fill-color fill)
-            (let ((c (fill-color fill)))
-              (cairo:set-source-rgba cairo
-                                     (color-r c)
-                                     (color-g c)
-                                     (color-b c)
-                                     (color-a c))
-              ((if preserve? cairo:fill-preserve cairo-fill)
-               cairo))))
-    (if stroke
-        (if (stroke-color stroke)
-            (let ((c (stroke-color stroke)))
-              (cairo:set-source-rgba cairo
-                                     (color-r c)
-                                     (color-g c)
-                                     (color-b c)
-                                     (color-a c))
-              (cairo:set-line-width cairo (stroke-thickness stroke))
-              (cairo:stroke cairo))))))
+  (if fill
+      (if (fill-color fill)
+          (let ((c (fill-color fill)))
+            (cairo:set-source-rgba cairo
+                                   (color-r c)
+                                   (color-g c)
+                                   (color-b c)
+                                   (color-a c))
+            ((if stroke cairo:fill-preserve cairo:fill)
+             cairo))))
+  (if stroke
+      (if (stroke-color stroke)
+          (let ((c (stroke-color stroke)))
+            (cairo:set-source-rgba cairo
+                                   (color-r c)
+                                   (color-g c)
+                                   (color-b c)
+                                   (color-a c))
+            (cairo:set-line-width cairo (stroke-thickness stroke))
+            (cairo:stroke cairo)))))
 
 ;-------------------------------------------------------------------------------
 ; Pixels
@@ -193,11 +199,30 @@
                  (cairo *cairo*)
                  (stroke *default-stroke*)
                  (fill *default-fill*))
-  (define cairo *cairo*)
-  (define stroke *default-stroke*)
-  (define fill *default-fill*)
   (cairo:move-to cairo (flonum x1) (flonum y1))
   (cairo:line-to cairo (flonum x2) (flonum y2))
+  (%%execute-paint cairo stroke fill))
+
+(define (draw:arc x y radius angle1 angle2
+                  #!key
+                  (cairo *cairo*)
+                  (stroke *default-stroke*)
+                  (fill *default-fill*))
+  (cairo:arc cairo
+             (flonum x) (flonum y)
+             (flonum radius)
+             (flonum angle1) (flonum angle2))
+  (%%execute-paint cairo stroke fill))
+
+(define (draw:arc-negative x y radius angle1 angle2
+                  #!key
+                  (cairo *cairo*)
+                  (stroke *default-stroke*)
+                  (fill *default-fill*))
+  (cairo:arc-negative cairo
+                      (flonum x) (flonum y)
+                      (flonum radius)
+                      (flonum angle1) (flonum angle2))
   (%%execute-paint cairo stroke fill))
 
 ;;; Draw a rectangle given its two corners
@@ -207,9 +232,6 @@
                            (cairo *cairo*)
                            (stroke *default-stroke*)
                            (fill *default-fill*))
-  (define cairo *cairo*)
-  (define stroke *default-stroke*)
-  (define fill *default-fill*)
   (cairo:rectangle cairo
                    (flonum x1) (flonum y1)
                    (flonum x2) (flonum y2))
@@ -217,32 +239,84 @@
 
 ;;; Draw a rectangle given its center and its sides
 
-(define (draw:rectangle/center)
-  (error "Not implemented"))
+(define (draw:rectangle/center x y width height
+                               #!key
+                               (cairo *cairo*)
+                               (stroke *default-stroke*)
+                               (fill *default-fill*))
+  (let ((x (flonum x))
+        (y (flonum y))
+        (half-width (fl/ (flonum width) 2.0))
+        (half-height (fl/ (flonum height) 2.0)))
+   (cairo:rectangle cairo
+                    (fl- x half-width) (fl- y half-height)
+                    (fl+ x half-width) (fl+ y half-height)))
+  (%%execute-paint cairo stroke fill))
 
 ;;; Draw a rectangle given the top-left corner and its sides
 
 (define (draw:rectangle/corner-sides x y width height
-                                #!key
-                                (cairo *cairo*)
-                                (stroke *default-stroke*)
-                                (fill *default-fill*))
-  (error "Not implemented"))
+                                     #!key
+                                     (cairo *cairo*)
+                                     (stroke *default-stroke*)
+                                     (fill *default-fill*))
+  (let ((x (flonum x))
+        (y (flonum y)))
+    (cairo:rectangle cairo
+                     x y
+                     (fl+ x (flonum width)) (fl+ y (flonum height))))
+  (%%execute-paint cairo stroke fill))
+
+;;; Draw an ellipse given a center and its width and height
+
+(define (draw:ellipse/center x y width height
+                             #!key
+                             (cairo *cairo*)
+                             (stroke *default-stroke*)
+                             (fill *default-fill*))
+  (cairo:save cairo)
+  (cairo:translate cairo (flonum x) (flonum y))
+  (cairo:scale cairo
+               (fl/ (flonum width) 2.0)
+               (fl/ (flonum height) 2.0))
+  (cairo:arc cairo
+             0.0 0.0
+             1.0
+             0.0 pi2)
+  (cairo:restore cairo)
+  (%%execute-paint cairo stroke fill))
+
 
 ;;; Draw an ellipse given its two corners
 
 (define (draw:ellipse/corners x1 y1 x2 y2)
-  (error "Not implemented"))
+  (let ((x1 (flonum x1))
+        (y1 (flonum y1))
+        (x2 (flonum x2))
+        (y2 (flonum y2)))
+    (let ((width (fl- x2 x1))
+          (height (fl- y2 y1)))
+     (draw:ellipse/center (+ x1 (fl/ width 2.0))
+                          (+ y1 (fl/ height 2.0))
+                          width
+                          height))))
 
 ;; Draw an ellipse given the top-left corner and its sides
 
-(define (draw:ellipse/corner-sides x y width height)
-  (error "Not implemented"))
+(define (draw:ellipse/corner-sides x y width height
+                                   #!key
+                                   (cairo *cairo*)
+                                   (stroke *default-stroke*)
+                                   (fill *default-fill*))
+  (let ((x (flonum x))
+        (y (flonum y))
+        (width (flonum width))
+        (height (flonum height)))
+   (draw:ellipse/center (+ x (fl/ width 2.0))
+                        (+ y (fl/ height 2.0))
+                        width
+                        height)))
 
-;;; Draw an ellipse given a center and its width and height
-
-(define (draw:ellipse/center x y width height)
-  (error "Not implemented"))
 
 ;;; Draw circle from given a center and its radius
 
@@ -251,25 +325,50 @@
                             (cairo *cairo*)
                             (stroke *default-stroke*)
                             (fill *default-fill*))
-  (define cairo *cairo*)
-  (define stroke *default-stroke*)
-  (define fill *default-fill*)
   (cairo:arc cairo
-             (flonum x)
-             (flonum y)
+             (flonum x) (flonum y)
              (flonum r)
-             0.0
-             ;TODO
-             ;pi2
-             6.28
-             )
+             0.0 pi2)
+  (%%execute-paint cairo stroke fill))
+
+;;; Draw polygon
+
+;;;;;;;;;;;;;;; TEMP
+(define-macro (unless ?test ?form1 . ?form+)
+  `(if ,?test
+       #f
+       (begin ,?form1 . ,?form+)))
+
+
+(define (draw:path closed? first
+                   #!rest points
+                   #!key
+                   (cairo *cairo*)
+                   (stroke *default-stroke*)
+                   (fill *default-fill*))
+  (cairo:move-to cairo
+                 (flonum (vect2-x first))
+                 (flonum (vect2-y first)))
+  (let recur ((points points))
+    (unless (null? points)
+            (cairo:line-to cairo
+                           (flonum (vect2-x (car points)))
+                           (flonum (vect2-y (car points))))
+            (recur (cdr points))))
+  (if closed?
+      (cairo:close-path cairo))
   (%%execute-paint cairo stroke fill))
 
 ;;; Bezier curve
 
-(define (draw:bezier pl
+(define (draw:bezier p1 p2 p3 p4
                      #!key
                      (cairo *cairo*)
-                     (stroke #f)
-                     (fill #f))
-  (error "Not implemented"))
+                     (stroke *default-stroke*)
+                     (fill *default-fill*))
+  (cairo:move-to cairo (flonum (vect2-x p1)) (flonum (vect2-y p1)))
+  (cairo:curve-to cairo
+                  (flonum (vect2-x p2)) (flonum (vect2-y p2))
+                  (flonum (vect2-x p3)) (flonum (vect2-y p3))
+                  (flonum (vect2-x p4)) (flonum (vect2-y p4)))
+  (%%execute-paint cairo stroke fill))
