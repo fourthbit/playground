@@ -3,88 +3,73 @@
 
 (cond-expand
  (sdl
-  (%load playground: sdl/core))
+  (%load playground: sdl/init))
  (android
-  (%load playground: android/core)))
+  (%load playground: android/init)))
 
 ;;; Hooks for C
 
-(define setup-hook (lambda () 0))
-(define main-loop-hook (lambda () 5))
+;(define setup-hook (lambda () 'empty-setup-hook))
+(define main-loop-hook (lambda () 'empty-loop-hook))
 
 ;;; Globals
 
-(define *resources* #f)
-(define *graphics* #f)
-(define *input* #f)
-(define *audio* #f)
+(define *resources* 'uninitialized)
+(define *graphics* 'uninitialized)
+(define *input* 'uninitialized)
+(define *audio* 'uninitialized)
 
-(define *state* #f)
-(define *initialized* #f)
+;;; Application state
 
-;;; State type: used for passing application state
-
-(define-type state 
-  surface
-  canvas
+(define-type state
+  environment
   world)
+
+;;; Application environment
+
+(define-type environment
+  size-x
+  size-y
+  resources
+  graphics)
 
 ;;; Initialization routine
 
-(define (pg:initialize!)
-  (let-syntax ((initialize-module
-                (syntax-rules ()
-                  ((_ ?global-binding ?init-form)
-                   (let ((result ?init-form))
-                     (if result
-                         (set! ?global-binding result)
-                         (error (string-append
-                                 "-- Error in module "
-                                 (symbol->string '?global-binding)
-                                 " -- unable to determine more information"))))))))
-    (initialize-module *resources* (resources:initialize))
-    (let ((config (resources:config)))
-      (initialize-module *graphics* (graphics:initialize config))
-      (initialize-module *input* (input:initialize config))
-      (initialize-module *audio* (audio:initialize config))))
-  0)
+(define (pg:initialize! setup-proc)
+  (define-macro (initialize-module module init-proc)
+    (let ((global-var-name (string->symbol (string-append "*" (symbol->string module) "*"))))
+      `(let ((result ,init-proc))
+         (if result
+             (begin
+               (display (string-append
+                         "-- initializing Playground: "
+                         (symbol->string ',module)
+                         "\n"))
+               (set! ,global-var-name result)
+               result)
+             (error (string-append
+                     "-- Error in module "
+                     module
+                     " -- unable to determine more information"))))))
+  ;; Resources comes first, as it loads configuration files and global data like assets
+  (let* ((resources (initialize-module resources
+                                       (resources:initialize)))
+         (environment (setup-proc resources)))
+    (initialize-module graphics
+                       (graphics:initialize
+                        (initialize-module audio
+                                           (audio:initialize
+                                            (initialize-module input
+                                                               (input:initialize environment))))))))
 
-;;; Set setup function
+(define pg:app
+  (let ((state #f))
+    (lambda (#!key
+        (setup #f)
+        (main-loop #f))
+      (main-loop (pg:initialize! setup)))))
 
-(define (pg:set-setup! f)
-  (set! setup-hook
-        (lambda ()
-          (set! *state* (f (pg:initialize!)))
-          ;; TODO: check and return error
-          0)))
 
-;;; Set draw loop function
-
-(define (pg:set-main-loop! f)
-  (set! main-loop-hook
-        (lambda ()
-          (f *state*)
-          ;; TODO: check and return error
-          0)))
-
-;;; Start
-
-(define (pg:start!)
-  (if *initialized*
-      (main-loop-hook)
-      (begin
-        (setup-hook)
-        (set! *initialized* #t)
-        (main-loop-hook))))
-
-;;; Window
-
-(define (pg:set-size! state x y
-                           ;#!key
-                           ;(adaptive #f)
-                           ;(fullscreen #f)
-                           )
-  #f)
 
 (define (pg:width state)
   #f)

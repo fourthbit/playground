@@ -2,8 +2,8 @@
 ; Initialization
 ;-------------------------------------------------------------------------------
 
-(define (input:initialize init-config)
-  #t)
+(define (input:initialize config)
+  config)
 
 ;-------------------------------------------------------------------------------
 ; Keyboard
@@ -12,8 +12,8 @@
 (define (input:key-events)
   #f)
 
-(define (input:key-pressed?)
-  #f)
+(define (input:key-pressed? key-symbol)
+ (sdl::key-pressed? (sdl::symbol->keysym-sym key-symbol)))
 
 ;-------------------------------------------------------------------------------
 ; Mouse
@@ -22,17 +22,9 @@
 (define (input:mouse-events)
   #f)
 
-(define (input:mouse-pressed?)
-  #f)
+(define input:mouse-pressed? sdl::mouse-pressed?)
 
-(define (input:mouse-released?)
-  #f)
-
-(define (input:mouse-x)
-  #f)
-
-(define (input:mouse-y)
-  #f)
+(define input:mouse-position sdl::get-mouse-state)
 
 ;-------------------------------------------------------------------------------
 ; Touch

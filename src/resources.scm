@@ -8,10 +8,7 @@
   (%load playgorund: android/resources)))
 
 (define (resources:initialize)
-  #t)
-
-(define (resources:config)
-  #f)
+  'no-resources-loaded)
 
 ;;; Read a file as a u8vector
 

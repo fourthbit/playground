@@ -6,9 +6,3 @@
   (%load playground: sdl/input))
  (android
   (%load playground: android/input)))
-
-(define (input:key-pressed? key-symbol)
-  (cond-expand
-   (sdl
-    ;; TODO: key-name should be transformed into keysym
-    (sdl::key-pressed? (sdl::symbol->keysym-sym key-symbol)))))

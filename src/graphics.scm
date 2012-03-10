@@ -9,22 +9,31 @@
 
 ;;; How to deal with non-floating-point input to cairo functions
 
-(define-syntax flonum
-  (syntax-rules ()
-    ((_ l)
-     (exact->inexact l))))
+(define-macro (flonum arg)
+  `(exact->inexact ,arg))
 
 ;-------------------------------------------------------------------------------
 ; System
 ;-------------------------------------------------------------------------------
+
+(define-type graphics
+  surface
+  canvas)
 
 (define *cairo* #f)
 
 (define (graphics:set-cairo! cairo)
   (set! *cairo* cairo))
 
-(define (graphics:initialize init-config)
-  #t)
+(define (graphics:initialize env)
+  (cond-expand
+   (sdl
+    (environment-graphics-set! env
+                               (pg:sdl-initialize (environment-size-x env)
+                                                  (environment-size-y env)))
+    env)
+   (android
+    #f)))
 
 (define draw:on
   (cond-expand
@@ -101,23 +110,20 @@
                #f))
 
 (define (draw:stroke! color thickness pattern
-                 ;#!key
-                 ;(cairo *cairo*)
-                      )
+                 #!key
+                 (cairo *cairo*))
   (set! *default-stroke* (make-stroke color
                                       thickness
                                       pattern)))
 
 (define (draw:stroke-color! color
-                       ;#!key
-                       ;(cairo *cairo*)
-                            )
+                       #!key
+                       (cairo *cairo*))
   (stroke-color-set! *default-stroke* color))
 
 (define (draw:stroke-thickness! thickness
-                           ;#!key
-                           ;(cairo *cairo*)
-                                )
+                           #!key
+                           (cairo *cairo*))
   (stroke-thickness-set! *default-stroke* thickness))
 
 ;;; Fill
@@ -134,15 +140,13 @@
              #f))
 
 (define (draw:fill! color pattern2d
-               ;#!key
-               ;(cairo *cairo*)
-                    )
+               #!key
+               (cairo *cairo*))
   (set! *default-fill* (make-fill color pattern2d)))
 
 (define (draw:fill-color! c
-                     ;#!key
-                     ;(cairo *cairo*)
-                          )
+                     #!key
+                     (cairo *cairo*))
   (fill-color-set! *default-fill* c))
 
 ;;; Execute paint: stroke, fill or both
@@ -185,11 +189,10 @@
 ;-------------------------------------------------------------------------------
 
 (define (draw:segment x1 y1 x2 y2
-                 ;#!key
-                 ;(cairo *cairo*)
-                 ;(stroke *default-stroke*)
-                 ;(fill *default-fill*)
-                      )
+                 #!key
+                 (cairo *cairo*)
+                 (stroke *default-stroke*)
+                 (fill *default-fill*))
   (define cairo *cairo*)
   (define stroke *default-stroke*)
   (define fill *default-fill*)
@@ -200,11 +203,10 @@
 ;;; Draw a rectangle given its two corners
 
 (define (draw:rectangle/corners x1 y1 x2 y2
-                           ;#!key
-                           ;(cairo *cairo*)
-                           ;(stroke *default-stroke*)
-                           ;(fill *default-fill*)
-                                )
+                           #!key
+                           (cairo *cairo*)
+                           (stroke *default-stroke*)
+                           (fill *default-fill*))
   (define cairo *cairo*)
   (define stroke *default-stroke*)
   (define fill *default-fill*)
@@ -221,11 +223,10 @@
 ;;; Draw a rectangle given the top-left corner and its sides
 
 (define (draw:rectangle/corner-sides x y width height
-                                ;#!key
-                                ;(cairo *cairo*)
-                                ;(stroke *default-stroke*)
-                                ;(fill *default-fill*)
-                                     )
+                                #!key
+                                (cairo *cairo*)
+                                (stroke *default-stroke*)
+                                (fill *default-fill*))
   (error "Not implemented"))
 
 ;;; Draw an ellipse given its two corners
@@ -246,11 +247,10 @@
 ;;; Draw circle from given a center and its radius
 
 (define (draw:circle/center x y r
-                            ;#!key
-                            ;(cairo *cairo*)
-                            ;(stroke *default-stroke*)
-                            ;(fill *default-fill*)
-                            )
+                            #!key
+                            (cairo *cairo*)
+                            (stroke *default-stroke*)
+                            (fill *default-fill*))
   (define cairo *cairo*)
   (define stroke *default-stroke*)
   (define fill *default-fill*)
@@ -268,9 +268,8 @@
 ;;; Bezier curve
 
 (define (draw:bezier pl
-                     ;#!key
-                     ;(cairo *cairo*)
-                     ;(stroke #f)
-                     ;(fill #f)
-                     )
+                     #!key
+                     (cairo *cairo*)
+                     (stroke #f)
+                     (fill #f))
   (error "Not implemented"))

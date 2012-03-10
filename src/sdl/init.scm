@@ -1,12 +1,5 @@
 ;; Copyright (c) 2012, Alvaro Castro-Castilla. All rights reserved.
 
-;(import (ffi-sdl))
-;(import (ffi-cairo))
-;(import (base system-conditional))
-
-;(import (anygame anygame
-                 ;graphics))
-
 (define (pg:sdl-initialize size-x size-y)
   (let* (;(osx-only (%if-sys "Darwin" (SDL::init-osx)))
          (error (sdl::init sdl::init-video)) ; TODO: check this error
@@ -21,4 +14,4 @@
                          (sdl::screen-pitch sdl-surface)))
          (cairo (cairo:create image-surface)))
     (graphics:set-cairo! cairo) ; TODO: should be part of module initialization
-    (make-state sdl-surface cairo '())))
+    (make-graphics sdl-surface cairo)))

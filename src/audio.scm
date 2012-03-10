@@ -8,8 +8,8 @@
   (%load playground: android/audio)))
 
 
-(define (audio:initialize init-config)
-  #t)
+(define (audio:initialize config)
+  config)
 
 (define (audio:set-volume!)
   #f)
