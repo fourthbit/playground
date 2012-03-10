@@ -13,7 +13,12 @@
   #f)
 
 (define (input:key-pressed? key-symbol)
- (sdl::key-pressed? (sdl::symbol->keysym-sym key-symbol)))
+  (sdl::key-pressed? (sdl::symbol->keysym-sym key-symbol)))
+
+(define (input:call-if-key-pressed proc)
+  (if (= (sdl::event-type (sdl::events-get-next)) 2)
+      (proc (sdl::event-key-keysym-sym
+             (sdl::events-get)))))
 
 ;-------------------------------------------------------------------------------
 ; Mouse

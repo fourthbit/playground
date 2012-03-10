@@ -340,16 +340,17 @@
        (begin ,?form1 . ,?form+)))
 
 
-(define (draw:path closed? first
-                   #!rest points
-                   #!key
+(define (draw:path #!key
+                   (closed? #f)
                    (cairo *cairo*)
                    (stroke *default-stroke*)
-                   (fill *default-fill*))
-  (cairo:move-to cairo
-                 (flonum (vect2-x first))
-                 (flonum (vect2-y first)))
-  (let recur ((points points))
+                   (fill *default-fill*)
+                   #!rest points)
+  (let ((first (car points)))
+    (cairo:move-to cairo
+                   (flonum (vect2-x first))
+                   (flonum (vect2-y first))))
+  (let recur ((points (cdr points)))
     (unless (null? points)
             (cairo:line-to cairo
                            (flonum (vect2-x (car points)))
