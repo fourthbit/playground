@@ -6,28 +6,52 @@
   config)
 
 ;-------------------------------------------------------------------------------
+; Generic events
+;-------------------------------------------------------------------------------
+
+;;; Poll all events in the event queue and call proc each time
+
+(define (input:call-with-poll-events proc)
+  (let loop ()
+    (receive (more? event)
+             (sdl::poll-event)
+             (if more?
+                 (begin (proc event) (loop))
+                 (proc event)))))
+
+;;; Wait for event and then call proc
+
+(define (input:call-with-wait-event proc)
+  (proc (sdl::wait-event)))
+
+;-------------------------------------------------------------------------------
 ; Keyboard
 ;-------------------------------------------------------------------------------
 
-(define (input:key-events)
-  #f)
+(define (input:event-key? event)
+  (= sdl::key-down (sdl::event-type event)))
+
+(define (input:event->key event)
+  (sdl::keysym-sym->symbol
+   (sdl::event-key-keysym-sym event)))
 
 (define (input:key-pressed? key-symbol)
   (sdl::key-pressed? (sdl::symbol->keysym-sym key-symbol)))
-
-(define (input:call-if-key-pressed proc)
-  (if (= (sdl::event-type (sdl::events-get-next)) 2)
-      (proc (sdl::event-key-keysym-sym
-             (sdl::events-get)))))
 
 ;-------------------------------------------------------------------------------
 ; Mouse
 ;-------------------------------------------------------------------------------
 
-(define (input:mouse-events)
+(define (input:event-mouse-pressed? event)
+  (= sdl::mouse-button-down (sdl::event-type event)))
+
+(define (input:event->mouse event)
   #f)
 
-(define input:mouse-pressed? sdl::mouse-pressed?)
+;;; Check if mouse if mouse button is pressed
+
+(define (input:mouse-button-pressed? button)
+  (sdl::mouse-pressed? (sdl::mouse-button->button-num button)))
 
 (define input:mouse-position sdl::get-mouse-state)
 
