@@ -333,13 +333,6 @@
 
 ;;; Draw polygon
 
-;;;;;;;;;;;;;;; TEMP
-(define-macro (unless ?test ?form1 . ?form+)
-  `(if ,?test
-       #f
-       (begin ,?form1 . ,?form+)))
-
-
 (define (draw:path #!key
                    (closed? #f)
                    (cairo *cairo*)
