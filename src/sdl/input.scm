@@ -38,6 +38,14 @@
 (define (input:key-pressed? key-symbol)
   (sdl::key-pressed? (sdl::symbol->keysym-sym key-symbol)))
 
+(define-macro (define-key key)
+  `(define ,(macro-append 'input: key)
+     ,(macro-append 'sdl:: key)))
+
+;; TODO
+(define-key key-backspace)
+(pp input:key-backspace)
+
 ;-------------------------------------------------------------------------------
 ; Mouse
 ;-------------------------------------------------------------------------------
