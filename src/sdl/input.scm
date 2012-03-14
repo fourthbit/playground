@@ -43,8 +43,8 @@
      ,(macro-append 'sdl:: key)))
 
 ;; TODO
-(define-key key-backspace)
-(pp input:key-backspace)
+; (define-key key-backspace)
+;(pp input:key-backspace)
 
 ;-------------------------------------------------------------------------------
 ; Mouse

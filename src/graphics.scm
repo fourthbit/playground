@@ -227,30 +227,34 @@
 
 ;;; Draw a rectangle given its two corners
 
-(define (draw:rectangle/corners x1 y1 x2 y2
-                           #!key
-                           (cairo *cairo*)
-                           (stroke *default-stroke*)
-                           (fill *default-fill*))
-  (cairo:rectangle cairo
-                   (flonum x1) (flonum y1)
-                   (flonum x2) (flonum y2))
+(define (draw:rectangle/corner-corner x1 y1 x2 y2
+                                      #!key
+                                      (cairo *cairo*)
+                                      (stroke *default-stroke*)
+                                      (fill *default-fill*))
+  (let ((x1 (flonum x1))
+        (y1 (flonum y1)))
+    (cairo:rectangle cairo
+                     x1 y1
+                     (fl- (flonum x2) x1) (fl- (flonum y2) y1)))
   (%%execute-paint cairo stroke fill))
 
 ;;; Draw a rectangle given its center and its sides
 
-(define (draw:rectangle/center x y width height
-                               #!key
-                               (cairo *cairo*)
-                               (stroke *default-stroke*)
-                               (fill *default-fill*))
+(define (draw:rectangle/center-sides x y width height
+                                     #!key
+                                     (cairo *cairo*)
+                                     (stroke *default-stroke*)
+                                     (fill *default-fill*))
   (let ((x (flonum x))
         (y (flonum y))
-        (half-width (fl/ (flonum width) 2.0))
-        (half-height (fl/ (flonum height) 2.0)))
-   (cairo:rectangle cairo
-                    (fl- x half-width) (fl- y half-height)
-                    (fl+ x half-width) (fl+ y half-height)))
+        (width (flonum width))
+        (height (flonum height)))
+    (let ((half-width (fl/ width 2.0))
+          (half-height (fl/ height 2.0)))
+      (cairo:rectangle cairo
+                       (fl- x half-width) (fl+ y half-height)
+                       width height)))
   (%%execute-paint cairo stroke fill))
 
 ;;; Draw a rectangle given the top-left corner and its sides
@@ -260,11 +264,9 @@
                                      (cairo *cairo*)
                                      (stroke *default-stroke*)
                                      (fill *default-fill*))
-  (let ((x (flonum x))
-        (y (flonum y)))
-    (cairo:rectangle cairo
-                     x y
-                     (fl+ x (flonum width)) (fl+ y (flonum height))))
+  (cairo:rectangle cairo
+                   (flonum x) (flonum y)
+                   (flonum width) (flonum height))
   (%%execute-paint cairo stroke fill))
 
 ;;; Draw an ellipse given a center and its width and height
