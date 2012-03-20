@@ -269,7 +269,7 @@
     (let ((half-width (fl/ width 2.0))
           (half-height (fl/ height 2.0)))
       (cairo:rectangle cairo
-                       (fl- x half-width) (fl+ y half-height)
+                       (fl- x half-width) (fl- y half-height)
                        width height)))
   (%%execute-paint cairo stroke fill))
 
