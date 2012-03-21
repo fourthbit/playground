@@ -119,10 +119,7 @@
   thickness
   pattern)
 
-(define *default-stroke*
-  (make-stroke #f
-               #f
-               #f))
+(define *default-stroke* #f)
 
 (define (draw:stroke! color thickness pattern
                  #!key
@@ -158,14 +155,10 @@
   (make-fill #f
              #f))
 
-(define (draw:fill! color pattern2d
-               #!key
-               (cairo *cairo*))
+(define (draw:fill! color pattern2d)
   (set! *default-fill* (make-fill color pattern2d)))
 
-(define (draw:fill-color! c
-                     #!key
-                     (cairo *cairo*))
+(define (draw:fill-color! c)
   (fill-color-set! *default-fill* c))
 
 (define (draw:no-fill! #!key
