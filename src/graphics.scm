@@ -200,6 +200,28 @@
   (error "Not implemented"))
 
 ;-------------------------------------------------------------------------------
+; Operations
+;-------------------------------------------------------------------------------
+
+(define (draw:translate x y
+                        #!key
+                        (cairo *cairo*))
+  (cairo:translate cairo (flonum x) (flonum y)))
+
+(define (draw:scale x y
+                    #!key
+                    (cairo *cairo*))
+  (cairo:scale cairo (flonum x) (flonum y)))
+
+(define (draw:rotate angle
+                    #!key
+                    (cairo *cairo*))
+  (cairo:rotate cairo angle))
+
+(define (draw:restore #!key (cairo *cairo*))
+  (cairo:restore cairo))
+
+;-------------------------------------------------------------------------------
 ; Shapes
 ;-------------------------------------------------------------------------------
 
