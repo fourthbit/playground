@@ -3,9 +3,9 @@
 
 (cond-expand
  (sdl
-  (%load playground: sdl/audio))
+  (%include playground: sdl/audio))
  (android
-  (%load playground: android/audio)))
+  (%include playground: android/audio)))
 
 
 (define (audio:initialize config)

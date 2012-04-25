@@ -3,9 +3,9 @@
 
 (cond-expand
  (sdl
-  (%load playground: sdl/core))
+  (%include playground: sdl/core))
  (android
-  (%load playground: android/core)))
+  (%include playground: android/core)))
 
 ;;; Hooks for C
 

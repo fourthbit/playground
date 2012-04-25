@@ -3,6 +3,6 @@
 
 (cond-expand
  (sdl
-  (%load playground: sdl/input))
+  (%include playground: sdl/input))
  (android
-  (%load playground: android/input)))
+  (%include playground: android/input)))

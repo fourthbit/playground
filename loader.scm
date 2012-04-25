@@ -1,5 +1,0 @@
-(%load playground: audio)
-(%load playground: graphics)
-(%load playground: input)
-(%load playground: resources)
-(%load playground: core)

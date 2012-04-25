@@ -3,9 +3,9 @@
 
 (cond-expand
  (sdl
-  (%load playground: sdl/resources))
+  (%include playground: sdl/resources))
  (android
-  (%load playgorund: android/resources)))
+  (%include playgorund: android/resources)))
 
 (define (resources:initialize)
   'no-resources-loaded)

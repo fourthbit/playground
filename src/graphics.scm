@@ -3,9 +3,9 @@
 
 (cond-expand
  (sdl
-  (%load playground: sdl/graphics))
+  (%include playground: sdl/graphics))
  (android
-  (%load playground: android/graphics)))
+  (%include playground: android/graphics)))
 
 ;;; How to deal with non-floating-point input to cairo functions
 

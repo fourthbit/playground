@@ -1,0 +1,6 @@
+base=/data/projects/scheme-base
+math=/data/projects/scheme-math
+geometry=/data/projects/scheme-geometry
+sdl=/data/projects/scheme-sdl
+cairo=/data/projects/scheme-cairo
+playground=/data/projects/scheme-playground
