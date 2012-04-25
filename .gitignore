@@ -8,3 +8,4 @@ android/jni/c-files.dat
 android/jni/Android.mk
 src/*.o*
 src/*.c
+lib

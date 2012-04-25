@@ -49,7 +49,7 @@
                result)
              (error (string-append
                      "-- Error in module "
-                     module
+                     ,(symbol->string module)
                      " -- unable to determine more information"))))))
   ;; Resources comes first, as it loads configuration files and global data like assets
   (let* ((resources (initialize-module resources
