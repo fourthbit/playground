@@ -1,11 +1,3 @@
-android/bin
-android/libs
-android/obj
-android/jni/*.c
-android/jni/*.o*
-android/jni/*deps
-android/jni/c-files.dat
-android/jni/Android.mk
-src/*.o*
-src/*.c
+*.o[0-9]*
+build
 lib
