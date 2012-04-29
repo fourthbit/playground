@@ -10,12 +10,11 @@
   (delete-file lib-directory))
 
 (define-task compile (init)
-  (gambit-eval
-    "
-    (begin
-     (define-cond-expand-feature sdl)
-     (include \"~~prelude/prelude#.scm\")
-     (compile-file \"module.scm\" output: \"build/playground.o1\"))"))
+  (gambit-eval-here
+   '(begin
+      (define-cond-expand-feature sdl)
+      (include "~~prelude/prelude#.scm")
+      (compile-file "module.scm" output: "build/playground.o1"))))
 
 (define-task install (compile)
   (make-directory lib-directory)
